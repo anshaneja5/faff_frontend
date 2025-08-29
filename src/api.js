@@ -89,6 +89,14 @@ export const messageAPI = {
     )
     return response.data
   },
+
+  // Semantic search through user's messages
+  semanticSearch: async (userId, query, limit = 10) => {
+    const response = await api.get(
+      `/messages/semantic-search?userId=${encodeURIComponent(userId)}&q=${encodeURIComponent(query)}&limit=${limit}`
+    )
+    return response.data
+  },
 }
 
 export default api

@@ -4,6 +4,8 @@ import socketManager from '../socket'
 import MessageList from '../components/MessageList'
 import UserList from '../components/UserList'
 import MessageInput from '../components/MessageInput'
+import SearchBar from '../components/SearchBar'
+import SearchResults from '../components/SearchResults'
 
 function Chat({ currentUser, onLogout }) {
   const [users, setUsers] = useState([])
@@ -13,6 +15,9 @@ function Chat({ currentUser, onLogout }) {
   const [isPartnerTyping, setIsPartnerTyping] = useState(false)
   const [unreadByUserId, setUnreadByUserId] = useState({})
   const [error, setError] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showSearch, setShowSearch] = useState(false)
   const messagesEndRef = useRef(null)
 
   // Initialize socket connection and load data
@@ -204,6 +209,28 @@ function Chat({ currentUser, onLogout }) {
     }
   }
 
+  // Handle search results
+  const handleSearchResults = (results, query) => {
+    setSearchResults(results)
+    setSearchQuery(query)
+    setShowSearch(true)
+  }
+
+  // Handle search result click
+  const handleSearchResultClick = (result) => {
+    // Find the user this message was sent to/received from
+    const otherUserId = result.senderId === currentUser.id ? result.receiverId : result.senderId
+    
+    // Find the user in our users list
+    const otherUser = users.find(u => u.id === otherUserId)
+    
+    if (otherUser) {
+      // Select that user and load the conversation
+      handleUserSelect(otherUser)
+      setShowSearch(false)
+    }
+  }
+
   // Scroll to bottom of messages
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -280,24 +307,39 @@ function Chat({ currentUser, onLogout }) {
           />
         </div>
 
-        {/* Chat Window */}
-        <div className="flex-1 flex flex-col">
-          {selectedUser ? (
-            <>
-              {/* Chat Header */}
-              <div className="bg-white border-b border-gray-200 px-6 py-4">
-                <div className="flex items-center space-x-3">
-                  <div className="h-10 w-10 bg-primary-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold">
-                      {selectedUser.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900">{selectedUser.name}</h2>
-                    <p className="text-sm text-gray-600">{selectedUser.email}</p>
-                  </div>
-                </div>
-              </div>
+                 {/* Chat Window */}
+         <div className="flex-1 flex flex-col">
+           {/* Search Bar - Always visible */}
+           <SearchBar 
+             currentUserId={currentUser.id}
+             onSearchResults={handleSearchResults}
+           />
+           
+           {/* Search Results */}
+           {showSearch && (
+             <SearchResults
+               results={searchResults}
+               query={searchQuery}
+               onResultClick={handleSearchResultClick}
+             />
+           )}
+           
+           {selectedUser ? (
+             <>
+               {/* Chat Header */}
+               <div className="bg-white border-b border-gray-200 px-6 py-4">
+                 <div className="flex items-center space-x-3">
+                   <div className="h-10 w-10 bg-primary-500 rounded-full flex items-center justify-center">
+                     <span className="text-white font-semibold">
+                       {selectedUser.name.charAt(0).toUpperCase()}
+                     </span>
+                   </div>
+                   <div>
+                     <h2 className="text-lg font-semibold text-gray-900">{selectedUser.name}</h2>
+                     <p className="text-sm text-gray-600">{selectedUser.email}</p>
+                   </div>
+                 </div>
+               </div>
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto">
