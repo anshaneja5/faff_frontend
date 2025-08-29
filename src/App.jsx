@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Chat from './pages/Chat'
+import { DarkModeProvider } from './contexts/DarkModeContext'
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null)
@@ -50,36 +51,38 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Routes>
-        <Route 
-          path="/login" 
-          element={
-            currentUser ? (
-              <Navigate to="/chat" replace />
-            ) : (
-              <Login onLogin={handleLogin} />
-            )
-          } 
-        />
-        <Route 
-          path="/chat" 
-          element={
-            currentUser ? (
-              <Chat currentUser={currentUser} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          } 
-        />
-        <Route 
-          path="/" 
-          element={
-            <Navigate to={currentUser ? "/chat" : "/login"} replace />
-          } 
-        />
-      </Routes>
-    </div>
+    <DarkModeProvider>
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-200">
+        <Routes>
+          <Route 
+            path="/login" 
+            element={
+              currentUser ? (
+                <Navigate to="/chat" replace />
+              ) : (
+                <Login onLogin={handleLogin} />
+              )
+            } 
+          />
+          <Route 
+            path="/chat" 
+            element={
+              currentUser ? (
+                <Chat currentUser={currentUser} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          <Route 
+            path="/" 
+            element={
+              <Navigate to={currentUser ? "/chat" : "/login"} replace />
+            } 
+          />
+        </Routes>
+      </div>
+    </DarkModeProvider>
   )
 }
 

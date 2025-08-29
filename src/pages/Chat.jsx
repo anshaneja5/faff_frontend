@@ -6,6 +6,7 @@ import UserList from '../components/UserList'
 import MessageInput from '../components/MessageInput'
 import SearchBar from '../components/SearchBar'
 import SearchResults from '../components/SearchResults'
+import DarkModeToggle from '../components/DarkModeToggle'
 
 function Chat({ currentUser, onLogout }) {
   const [users, setUsers] = useState([])
@@ -18,6 +19,7 @@ function Chat({ currentUser, onLogout }) {
   const [searchResults, setSearchResults] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearch, setShowSearch] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const messagesEndRef = useRef(null)
 
   // Initialize socket connection and load data
@@ -262,50 +264,78 @@ function Chat({ currentUser, onLogout }) {
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+      <header className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl shadow-soft dark:shadow-dark-soft border-b border-gray-100 dark:border-slate-700 mobile-container py-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="h-10 w-10 bg-primary-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-semibold text-lg">
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2 rounded-lg text-gray-600 dark:text-dark-400 hover:bg-gray-100 dark:hover:bg-dark-700"
+          >
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="h-10 w-10 sm:h-12 sm:w-12 bg-gradient-to-br from-primary-500 to-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-glow dark:shadow-dark-glow">
+              <span className="text-white font-bold text-sm sm:text-lg">
                 {currentUser.name.charAt(0).toUpperCase()}
               </span>
             </div>
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">Chat App</h1>
-              <p className="text-sm text-gray-600">Welcome, {currentUser.name}</p>
+            <div className="hidden sm:block">
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-slate-100">Chat App</h1>
+              <div className="flex items-center space-x-3">
+                <p className="text-gray-600 dark:text-slate-400 text-sm">Welcome, <span className="font-semibold text-gray-900 dark:text-slate-100">{currentUser.name}</span></p>
+                <div className="flex items-center space-x-2">
+                  <div className={`h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full ${socketManager.getConnectionStatus() ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+                  <span className={`text-xs font-medium ${socketManager.getConnectionStatus() ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {socketManager.getConnectionStatus() ? 'Connected' : 'Disconnected'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
           
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2">
-              <div className={`h-3 w-3 rounded-full ${socketManager.getConnectionStatus() ? 'bg-green-500' : 'bg-red-500'}`}></div>
-              <span className="text-sm text-gray-600">
-                {socketManager.getConnectionStatus() ? 'Connected' : 'Disconnected'}
-              </span>
-            </div>
-                         <button
-               onClick={onLogout}
-               className="btn-secondary"
-             >
-               Logout
-             </button>
-             
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <DarkModeToggle />
+            <button
+              onClick={onLogout}
+              className="btn-secondary text-sm sm:text-base px-3 sm:px-6 py-2 sm:py-3"
+            >
+              <svg className="h-4 w-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span className="hidden sm:inline">Logout</span>
+            </button>
           </div>
         </div>
       </header>
 
       {/* Main Chat Area */}
       <div className="flex-1 flex overflow-hidden">
-        {/* User List Sidebar */}
-        <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+        {/* User List Sidebar - Mobile Responsive */}
+        <div className={`${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0 lg:w-80 w-72 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 flex flex-col fixed lg:relative inset-y-0 left-0 z-20 transition-transform duration-300 ease-in-out lg:transition-none`}>
           <UserList
             users={users}
             currentUser={currentUser}
             selectedUser={selectedUser}
-            onUserSelect={handleUserSelect}
+            onUserSelect={(user) => {
+              handleUserSelect(user)
+              setIsMobileMenuOpen(false) // Close mobile menu when user is selected
+            }}
             unreadByUserId={unreadByUserId}
           />
         </div>
+        
+        {/* Mobile Overlay */}
+        {isMobileMenuOpen && (
+          <div 
+            className="lg:hidden fixed inset-0 bg-black/50 z-10"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
 
                  {/* Chat Window */}
          <div className="flex-1 flex flex-col">
@@ -327,16 +357,16 @@ function Chat({ currentUser, onLogout }) {
            {selectedUser ? (
              <>
                {/* Chat Header */}
-               <div className="bg-white border-b border-gray-200 px-6 py-4">
-                 <div className="flex items-center space-x-3">
-                   <div className="h-10 w-10 bg-primary-500 rounded-full flex items-center justify-center">
-                     <span className="text-white font-semibold">
+               <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border-b border-gray-100 dark:border-slate-700 mobile-container py-4">
+                 <div className="flex items-center space-x-3 sm:space-x-4">
+                   <div className="h-10 w-10 sm:h-12 sm:w-12 bg-gradient-to-br from-primary-500 to-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-glow dark:shadow-dark-glow">
+                     <span className="text-white font-bold text-sm sm:text-lg">
                        {selectedUser.name.charAt(0).toUpperCase()}
                      </span>
                    </div>
                    <div>
-                     <h2 className="text-lg font-semibold text-gray-900">{selectedUser.name}</h2>
-                     <p className="text-sm text-gray-600">{selectedUser.email}</p>
+                     <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-slate-100">{selectedUser.name}</h2>
+                     <p className="text-gray-600 dark:text-slate-400 text-sm">{selectedUser.email}</p>
                    </div>
                  </div>
                </div>
@@ -348,13 +378,22 @@ function Chat({ currentUser, onLogout }) {
                   currentUserId={currentUser.id}
                 />
                 {isPartnerTyping && (
-                  <div className="px-6 py-2 text-sm text-gray-500">Typing...</div>
+                  <div className="px-6 py-3 text-sm text-gray-500 animate-fade-in">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      </div>
+                      <span className="font-medium">{selectedUser.name} is typing...</span>
+                    </div>
+                  </div>
                 )}
                 <div ref={messagesEndRef} />
               </div>
 
               {/* Message Input */}
-              <div className="bg-white border-t border-gray-200 p-4">
+              <div className="bg-white/95 backdrop-blur-xl border-t border-gray-100">
                 <MessageInput
                   onSendMessage={handleSendMessage}
                   disabled={!socketManager.getConnectionStatus()}
@@ -368,15 +407,15 @@ function Chat({ currentUser, onLogout }) {
             </>
           ) : (
             /* No User Selected State */
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <div className="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white dark:from-slate-900 dark:to-slate-800">
+              <div className="text-center mobile-padding">
+                <div className="h-16 w-16 sm:h-20 sm:w-20 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-700 dark:to-slate-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-soft dark:shadow-dark-soft">
+                  <svg className="h-8 w-8 sm:h-10 sm:w-10 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Select a user to start chatting</h3>
-                <p className="text-gray-600">Choose someone from the user list to begin your conversation</p>
+                <h3 className="mobile-heading font-bold text-gray-900 dark:text-slate-100 mb-2 sm:mb-3">Select a user to start chatting</h3>
+                <p className="text-gray-600 dark:text-slate-400 mobile-text">Choose someone from the user list to begin your conversation</p>
               </div>
             </div>
           )}
@@ -385,19 +424,24 @@ function Chat({ currentUser, onLogout }) {
 
       {/* Error Toast */}
       {error && (
-        <div className="fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
-          {error}
+        <div className="fixed bottom-6 right-6 bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 animate-slide-up border border-red-200">
+          <div className="flex items-center space-x-3">
+            <svg className="h-6 w-6 text-red-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="font-medium">{error}</span>
+          </div>
         </div>
       )}
       
       {/* Success Toast for new messages */}
       {messages.length > 0 && !selectedUser && (
-        <div className="fixed bottom-4 left-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
-          <div className="flex items-center space-x-2">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="fixed bottom-6 left-6 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 animate-slide-up border border-green-200">
+          <div className="flex items-center space-x-3">
+            <svg className="h-6 w-6 text-green-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            <span>New messages received! Select a user to start chatting.</span>
+            <span className="font-medium">New messages received! Select a user to start chatting.</span>
           </div>
         </div>
       )}

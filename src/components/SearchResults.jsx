@@ -5,70 +5,75 @@ function SearchResults({ results, query, onResultClick }) {
 
   if (results.length === 0) {
     return (
-      <div className="p-6 text-center">
-        <div className="text-gray-400 mb-2">
-          <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
-        <p className="text-gray-600">
-          No messages found matching "{query}". Try different keywords or phrases.
-        </p>
+      <div className="p-8 text-center text-gray-500 dark:text-slate-400 bg-gradient-to-br from-gray-50 to-white dark:from-slate-800 dark:to-slate-900 border-b border-gray-100 dark:border-slate-700">
+        <svg className="h-16 w-16 mx-auto text-gray-300 dark:text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <p className="text-xl font-semibold mb-2">No results found</p>
+        <p className="text-gray-600 dark:text-slate-400">Try a different search term or check your spelling</p>
       </div>
     )
   }
 
   return (
-    <div className="bg-white border-b border-gray-200">
-      <div className="px-4 py-3 border-b border-gray-200">
-        <h3 className="text-sm font-medium text-gray-900">
+    <div className="bg-gradient-to-br from-gray-50 to-white dark:from-slate-800 dark:to-slate-900 border-b border-gray-100 dark:border-slate-700">
+      <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-700">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-2">
           Search Results for "{query}"
         </h3>
-        <p className="text-xs text-gray-500 mt-1">
-          Found {results.length} relevant messages
+        <p className="text-gray-600 dark:text-slate-400">
+          Found <span className="font-semibold text-primary-600">{results.length}</span> relevant messages
         </p>
       </div>
       
-      <div className="divide-y divide-gray-200">
+      <div className="space-y-4 p-6">
         {results.map((result, index) => (
           <div
             key={result.messageId}
-            className="p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-150"
+            className="card p-5 hover:shadow-lg transition-all duration-300 cursor-pointer group"
             onClick={() => onResultClick(result)}
           >
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
-                <div className="flex items-center space-x-2 mb-2">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                <div className="flex items-center space-x-3 mb-3">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-primary-100 to-blue-100 text-primary-700 dark:from-primary-900 dark:to-blue-900 dark:text-primary-300">
                     Score: {(result.score * 100).toFixed(1)}%
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-sm text-gray-500 dark:text-slate-400 flex items-center space-x-1">
+                    <svg className="h-4 w-4 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     {formatDistanceToNow(new Date(result.timestamp), { addSuffix: true })}
                   </span>
                 </div>
                 
-                <p className="text-sm text-gray-900 leading-relaxed">
+                <p className="text-gray-900 dark:text-slate-100 leading-relaxed mb-3">
                   {result.text}
                 </p>
                 
-                <div className="mt-2 flex items-center space-x-4 text-xs text-gray-500">
-                  <span>
-                    From: {result.senderId === result.userId ? 'You' : 'Other'}
+                <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-slate-400">
+                  <span className="flex items-center space-x-1">
+                    <svg className="h-4 w-4 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    From: <span className="font-medium">{result.senderId === result.userId ? 'You' : 'Other'}</span>
                   </span>
-                  <span>
-                    To: {result.receiverId === result.userId ? 'You' : 'Other'}
+                  <span className="flex items-center space-x-1">
+                    <svg className="h-4 w-4 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    To: <span className="font-medium">{result.receiverId === result.userId ? 'You' : 'Other'}</span>
                   </span>
                 </div>
               </div>
               
-              <div className="ml-3 flex-shrink-0">
+              <div className="ml-4 flex-shrink-0">
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
                     onResultClick(result)
                   }}
-                  className="text-primary-600 hover:text-primary-800 text-sm font-medium"
+                  className="px-4 py-2 text-sm bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all duration-200 transform hover:-translate-y-0.5 shadow-soft hover:shadow-glow"
                 >
                   View Context
                 </button>
@@ -78,7 +83,7 @@ function SearchResults({ results, query, onResultClick }) {
         ))}
       </div>
       
-      <div className="px-4 py-3 bg-gray-50 text-xs text-gray-500">
+      <div className="px-6 py-4 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/20 dark:to-blue-900/20 text-sm text-gray-600 dark:text-slate-400 border-t border-gray-100 dark:border-slate-700">
         💡 Results are ranked by semantic similarity. Higher scores indicate more relevant matches.
       </div>
     </div>

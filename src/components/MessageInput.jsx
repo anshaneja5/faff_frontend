@@ -48,16 +48,16 @@ function MessageInput({ onSendMessage, disabled = false, onTypingChange }) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4 p-6 border-t border-gray-100 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl">
       {/* Typing Indicator */}
       {isTyping && message.trim() && (
-        <div className="flex items-center space-x-2 text-sm text-gray-500">
+        <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-slate-400 animate-fade-in">
           <div className="flex space-x-1">
-            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
           </div>
-          <span>Typing...</span>
+          <span className="font-medium">Typing...</span>
         </div>
       )}
 
@@ -71,7 +71,7 @@ function MessageInput({ onSendMessage, disabled = false, onTypingChange }) {
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
             disabled={disabled}
-            className="input-field resize-none overflow-hidden min-h-[44px] max-h-32"
+            className="input-field resize-none overflow-hidden min-h-[48px] max-h-32"
             rows={1}
           />
         </div>
@@ -79,9 +79,9 @@ function MessageInput({ onSendMessage, disabled = false, onTypingChange }) {
         <button
           type="submit"
           disabled={!message.trim() || disabled}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+          className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:-translate-y-0.5 ${
             message.trim() && !disabled
-              ? 'bg-primary-600 hover:bg-primary-700 text-white'
+              ? 'btn-primary shadow-soft hover:shadow-glow'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >
